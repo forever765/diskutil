@@ -14,6 +14,7 @@ type VirtualDriveStat struct {
 	State          string `json:"state"`
 	NumberOfDrives int    `json:"number_of_drives"`
 	Encryptiontype string `json:"encryption_type"`
+	OsPath         string `json:"os_path"`
 }
 
 // String() is used to get the print string.

@@ -13,7 +13,8 @@ type PhysicalDriveStat struct {
 	MediaErrorCount        int    `json:"media_error_count"`
 	OtherErrorCount        int    `json:"other_error_count"`
 	PredictiveFailureCount int    `json:"predictive_failure_count"`
-	Pdtype                 string `json:"pd_type"`
+	PdMediaType            string `json:"pd_media_type"`
+	PdType                 string `json:"pd_type"`
 	RawSize                string `json:"raw_size"`
 	FirmwareState          string `json:"firmware_state"`
 	Brand                  string `json:"brand"`
@@ -77,12 +78,18 @@ func (p *PhysicalDriveStat) parseLine(line string) error {
 			return err
 		}
 		p.PredictiveFailureCount = predictiveFailureCount.(int)
-	} else if strings.HasPrefix(line, keyPdPdtype) {
-		pdtype, err := parseFiled(line, keyPdPdtype, typeString)
+	} else if strings.HasPrefix(line, keyPdMediaType) {
+		pdMediaType, err := parseFiled(line, keyPdMediaType, typeString)
 		if err != nil {
 			return err
 		}
-		p.Pdtype = pdtype.(string)
+		p.PdMediaType = pdMediaType.(string)
+	} else if strings.HasPrefix(line, keyPdPdtype) {
+		pdType, err := parseFiled(line, keyPdPdtype, typeString)
+		if err != nil {
+			return err
+		}
+		p.PdType = pdType.(string)
 	} else if strings.HasPrefix(line, keyPdRawSize) {
 		rawSize, err := parseFiled(line, keyPdRawSize, typeString)
 		if err != nil {
@@ -102,15 +109,22 @@ func (p *PhysicalDriveStat) parseLine(line string) error {
 		}
 		inquiryStr := inquiryData.(string)
 		parts := strings.Fields(inquiryStr)
-		if len(parts) == 3 {
+		switch len(parts) {
+		case 4:
+			p.SerialNumber = parts[3]
+			p.Model = parts[1] + " " + parts[2]
+			p.Brand = parts[0]
+		case 3:
 			p.SerialNumber = parts[2]
 			p.Model = parts[1]
 			p.Brand = parts[0]
-		} else if len(parts) == 2 {
+		case 2:
 			p.SerialNumber = parts[1]
 			p.Model = parts[0]
-		} else if len(parts) == 1 {
+		case 1:
 			p.SerialNumber = parts[0]
+		default:
+			p.SerialNumber = "unknown"
 		}
 	} else if strings.HasPrefix(line, keyPdDriveTemperature) {
 		driveTemperature, err := parseFiled(line, keyPdDriveTemperature, typeString)

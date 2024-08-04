@@ -1,4 +1,14 @@
-## Golang Disk Utils
+## 2024-08-03 forked from [buaazp/diskutil](https://github.com/buaazp/diskutil)
+
+1. feat: 获取VirtualDisk对应的盘符OsPath、新增pds.PdMediaType字段 (标识 HDD or SSD)
+2. improve: 适配Enclosure Device ID=N/A的情况
+3. improve: 禁用MegaCli64的日志输出文件
+4. improve: complete example code
+5. fixed: RawSize获取异常、物理硬盘型号获取失败的bug
+
+---
+
+## Golang MegaCli Utils
 
 This package is used for go codes to get MegaRaid stat.
 
@@ -106,6 +116,8 @@ Full sample code is in /examples. Try it to test this package:
 go build -v examples/printDiskStat.go
 sudo ./printDiskStat
 ```
+![example-image-1](https://github.com/forever765/diskutil/images/example-1.png)  
+![example-image-2](https://github.com/forever765/diskutil/images/example-2.png)
 
 ### GoDoc
 
@@ -117,6 +129,7 @@ Visit Godoc to get full api documents:
 
 If you meet some problems in your servers, please create a github [issue](https://github.com/buaazp/diskutil/issues) or contact me:
 
+### Original Author
 weibo: [@招牌疯子](http://weibo.com/buaazp)  
 mail: zp@buaa.us
 
