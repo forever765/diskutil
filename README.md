@@ -116,8 +116,8 @@ Full sample code is in /examples. Try it to test this package:
 go build -v examples/printDiskStat.go
 sudo ./printDiskStat
 ```
-![example-image-1](https://github.com/forever765/diskutil/images/example-1.png)  
-![example-image-2](https://github.com/forever765/diskutil/images/example-2.png)
+![example-image-1](https://github.com/forever765/diskutil/blob/master/images/example-1.png)  
+![example-image-2](https://github.com/forever765/diskutil/blob/master/images/example-2.png)
 
 ### GoDoc
 
