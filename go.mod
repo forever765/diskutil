@@ -1,14 +1,12 @@
-module github.com/buaazp/diskutil
+module github.com/forever765/diskutil
 
-go 1.13
+go 1.20
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.4.0
-	github.com/json-iterator/go v1.1.8 // indirect
-	github.com/mattn/go-isatty v0.0.10 // indirect
-	github.com/prometheus/client_golang v1.2.1
+	github.com/gin-gonic/gin v1.9.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/ugorji/go v1.1.7 // indirect
-	golang.org/x/sys v0.0.0-20191029155521-f43be2a4598c // indirect
-	gopkg.in/yaml.v2 v2.2.4 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 )
