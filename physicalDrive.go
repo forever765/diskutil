@@ -2,6 +2,8 @@ package diskutil
 
 import (
 	"encoding/json"
+	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -107,24 +109,27 @@ func (p *PhysicalDriveStat) parseLine(line string) error {
 		if err != nil {
 			return err
 		}
-		inquiryStr := inquiryData.(string)
-		parts := strings.Fields(inquiryStr)
-		switch len(parts) {
-		case 4:
-			p.SerialNumber = parts[3]
-			p.Model = parts[1] + " " + parts[2]
+		inquiryStr := regexp.MustCompile(` +`).ReplaceAllString(inquiryData.(string), " ")
+		// seagate drives have an ID string
+		re := regexp.MustCompile(`(\w{8})(ST\w+)(?:-(\w{6}))?(?:\s+(\w+))`)
+		matches := re.FindStringSubmatch(inquiryStr)
+		if len(matches) > 0 {
+			if matches[3] != "" {
+				p.SerialNumber = fmt.Sprintf("%s-%s", matches[2], matches[3])
+				p.Model = matches[4]
+				p.Brand = matches[1]
+			} else {
+				p.SerialNumber = matches[2]
+				p.Model = matches[4]
+				p.Brand = matches[1]
+			}
+			p.Model = inquiryStr
+		} else {
+			// others drivers
+			parts := strings.Fields(inquiryStr)
+			p.SerialNumber = parts[len(parts)-1]
+			p.Model = strings.Join(parts[1:len(parts)-2], " ")
 			p.Brand = parts[0]
-		case 3:
-			p.SerialNumber = parts[2]
-			p.Model = parts[1]
-			p.Brand = parts[0]
-		case 2:
-			p.SerialNumber = parts[1]
-			p.Model = parts[0]
-		case 1:
-			p.SerialNumber = parts[0]
-		default:
-			p.SerialNumber = "unknown"
 		}
 	} else if strings.HasPrefix(line, keyPdDriveTemperature) {
 		driveTemperature, err := parseFiled(line, keyPdDriveTemperature, typeString)
