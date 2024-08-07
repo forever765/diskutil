@@ -44,17 +44,22 @@ func main() {
 	}
 
 	for _, ads := range ds.AdapterStats {
-		for num, vds := range ads.VirtualDriveStats {
+		for _, vds := range ads.VirtualDriveStats {
 			vdStatus := vds.State
-			fmt.Printf("VD-%d: status: %s, size: %s, NumberOfDrives:%v, VirtualDrive:%v, OsPath: %s\n", num, vdStatus, vds.Size, vds.NumberOfDrives, vds.VirtualDrive, vds.OsPath)
+			fmt.Printf("VD-%d: status: %s, size: %s, NumberOfDrives:%v, OsPath: %s\n", vds.VirtualDrive, vdStatus, vds.Size, vds.NumberOfDrives, vds.OsPath)
 		}
 		fmt.Printf("\n")
 
 		for num, pds := range ads.PhysicalDriveStats {
+
 			pdStatus := pds.FirmwareState
 			pdName := []string{pds.Brand, pds.Model, pds.SerialNumber}
 			pdSN := strings.Join(pdName, " ")
-			fmt.Printf("PD-%d: %s, Size: %s, status: %s, PdType: %s %s\n", num, pdSN, pds.RawSize, pdStatus, pds.PdType, keepUppercaseLetters(pds.PdMediaType))
+			diskGroup := "null"
+			if pds.PdDiskGroup != "" || pds.PdArm != "" {
+				diskGroup = pds.PdDiskGroup + "-" + pds.PdArm
+			}
+			fmt.Printf("PD-%d: %s, Size: %s, status: %s, PdType: %s %s, DiskGroup: %s\n", num, pdSN, pds.RawSize, pdStatus, pds.PdType, keepUppercaseLetters(pds.PdMediaType), diskGroup)
 		}
 		fmt.Printf("\n")
 	}

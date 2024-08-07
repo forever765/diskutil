@@ -31,6 +31,7 @@ const (
 	keyPdRawSize                string = "Raw Size"
 	keyPdFirmwareState          string = "Firmware state"
 	keyPdInquiryData            string = "Inquiry Data"
+	keyPdDiskGroup              string = "DiskGroup"
 	keyPdDriveTemperature       string = "Drive Temperature"
 
 	typeString int = iota

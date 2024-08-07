@@ -17,6 +17,8 @@ type PhysicalDriveStat struct {
 	PredictiveFailureCount int    `json:"predictive_failure_count"`
 	PdMediaType            string `json:"pd_media_type"`
 	PdType                 string `json:"pd_type"`
+	PdDiskGroup            string `json:"pd_disk_group"`
+	PdArm                  string `json:"pd_arm"`
 	RawSize                string `json:"raw_size"`
 	FirmwareState          string `json:"firmware_state"`
 	Brand                  string `json:"brand"`
@@ -131,6 +133,18 @@ func (p *PhysicalDriveStat) parseLine(line string) error {
 			p.Model = strings.Join(parts[1:len(parts)-2], " ")
 			p.Brand = parts[0]
 		}
+	} else if strings.Contains(line, keyPdDiskGroup) {
+		diskGroupStr, err := parseFiled(line, keyPdDiskGroup, typeString)
+		if err != nil {
+			return err
+		}
+
+		parts := strings.Split(diskGroupStr.(string), ",")
+		diskGroup := strings.Split(parts[0], ":")[1]
+		//span := strings.Split(parts[1], ":")[1]
+		arm := strings.Split(parts[2], ":")[1]
+		p.PdDiskGroup = strings.TrimSpace(diskGroup)
+		p.PdArm = strings.TrimSpace(arm)
 	} else if strings.HasPrefix(line, keyPdDriveTemperature) {
 		driveTemperature, err := parseFiled(line, keyPdDriveTemperature, typeString)
 		if err != nil {

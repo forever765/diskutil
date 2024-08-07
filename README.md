@@ -1,6 +1,10 @@
 ## 2024-08-03 forked from [buaazp/diskutil](https://github.com/buaazp/diskutil)
 
-1. feat: 获取VirtualDisk对应的盘符OsPath、新增pds.PdMediaType字段 (标识 HDD or SSD)
+1. feat: 获取VirtualDisk对应的盘符OsPath
+2. 新增字段  
+   1. pds.PdMediaType (标识 HDD or SSD)
+   2. pds.PdDiskGroup（物理磁盘所在的VD组）
+   3. pds.PdArm（物理磁盘所在的VD组中的序号）
 2. improve: 适配Enclosure Device ID=N/A的情况
 3. improve: 禁用MegaCli64的日志输出文件
 4. improve: complete example code

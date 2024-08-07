@@ -45,7 +45,7 @@ func (a *AdapterStat) parseMegaRaidVdInfo(info string, common string, adapterId 
 	vds := make([]VirtualDriveStat, 0)
 
 	parts := strings.Split(info, keyVdVirtualDrive)
-	// vdinfo为完整vd信息，超多字段
+	// vdinfo为megacli响应的完整vd信息，遍历所有VD
 	for _, vdinfo := range parts {
 		if strings.Contains(vdinfo, keyVdTargetId) {
 			vdinfo = keyVdVirtualDrive + vdinfo
