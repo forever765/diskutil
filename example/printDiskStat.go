@@ -55,11 +55,12 @@ func main() {
 			pdStatus := pds.FirmwareState
 			pdName := []string{pds.Brand, pds.Model, pds.SerialNumber}
 			pdSN := strings.Join(pdName, " ")
-			diskGroup := "null"
+			diskGroup := "Unknown"
 			if pds.PdDiskGroup != "" || pds.PdArm != "" {
 				diskGroup = pds.PdDiskGroup + "-" + pds.PdArm
 			}
-			fmt.Printf("PD-%d: %s, Size: %s, status: %s, PdType: %s %s, DiskGroup: %s\n", num, pdSN, pds.RawSize, pdStatus, pds.PdType, keepUppercaseLetters(pds.PdMediaType), diskGroup)
+			fmt.Printf("PD-%d: %s, Size: %s, status: %s, PdType: %s %s, DiskGroup: %s, OsPath: %v\n",
+				num, pdSN, pds.RawSize, pdStatus, pds.PdType, keepUppercaseLetters(pds.PdMediaType), diskGroup, pds.OsPath)
 		}
 		fmt.Printf("\n")
 	}

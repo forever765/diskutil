@@ -57,8 +57,12 @@ func (a *AdapterStat) parseMegaRaidVdInfo(info string, common string, adapterId 
 					return err
 				}
 			}
-			osPath := getMegaRaidAdapterInfo(common, vd.VirtualDrive, adapterId)
-			vd.OsPath = osPath
+			vd.OsPath = "Unknown"
+			// 获取raid卡pcie地址
+			if pciPath, ok := getHBAPCIInfo(common, adapterId); ok {
+				osPath := getVdOsPath(pciPath, vd.VirtualDrive)
+				vd.OsPath = osPath
+			}
 			vds = append(vds, vd)
 		}
 	}
@@ -91,7 +95,7 @@ func (a *AdapterStat) getMegaRaidVdInfo(command string) error {
 	return nil
 }
 
-func (a *AdapterStat) parseMegaRaidPdInfo(info string) error {
+func (a *AdapterStat) parseMegaRaidPdInfo(common string, adapterId string, info string) error {
 	if info == "" {
 		return errors.New("mageRaid pd info nil")
 	}
@@ -110,6 +114,15 @@ func (a *AdapterStat) parseMegaRaidPdInfo(info string) error {
 					return err
 				}
 			}
+			pd.OsPath = "Unknown"
+			// 只有JBOD会直接映射到系统
+			if pd.FirmwareState == "JBOD" {
+				// 获取raid卡pcie地址
+				if pciPath, ok := getHBAPCIInfo(common, adapterId); ok {
+					osPath := getPdOsPath(pciPath, pd.DeviceId)
+					pd.OsPath = osPath
+				}
+			}
 			pds = append(pds, pd)
 		}
 	}
@@ -119,6 +132,8 @@ func (a *AdapterStat) parseMegaRaidPdInfo(info string) error {
 }
 
 func (a *AdapterStat) getMegaRaidPdInfo(command string) error {
+	adapterId := strconv.Itoa(a.AdapterId)
+	// 已知bug：pd DiskGroup可能会和vd序号对不上，用 -LdPdInfo 按顺序解析就可以规避
 	args := "-pdlist -a" + strconv.Itoa(a.AdapterId) + " -NoLog"
 
 	output, err := execCmd(command, args)
@@ -134,7 +149,7 @@ func (a *AdapterStat) getMegaRaidPdInfo(command string) error {
 		return errors.New("megaCli return error: " + result)
 	}
 
-	err = a.parseMegaRaidPdInfo(output)
+	err = a.parseMegaRaidPdInfo(command, adapterId, output)
 	if err != nil {
 		return err
 	}
@@ -205,31 +220,35 @@ func (a *AdapterStat) parseMegaRaidAdapterInfo(info string) error {
 	return nil
 }
 
-// GetMegaRaidAdapterInfo 获取vd对应的系统盘符
-func getMegaRaidAdapterInfo(command string, virtualDriveId int, adapterId string) string {
+// 获取RAID卡PCIE路径
+func getHBAPCIInfo(command string, adapterId string) (string, bool) {
 	var (
-		args   = "-AdpGetPciInfo -a" + adapterId + " -NoLog"
-		osPath = "N/A"
+		args   = fmt.Sprintf("-AdpGetPciInfo -a%s -NoLog", adapterId)
+		osPath = "Unknown"
 	)
 
 	output, err := execCmd(command, args)
 	if err != nil {
-		return osPath
+		return osPath, false
 	}
 	parts := strings.SplitN(output, keyExitResult, 2)
 	if len(parts) != 2 {
 		fmt.Printf("megaCli output illegal")
-		return osPath
+		return osPath, false
 	}
 	result := strings.TrimSpace(parts[1])
 	if result != "0x00" {
 		fmt.Printf("megaCli return error: " + result)
-		return osPath
+		return osPath, false
 	}
 
 	pciPath := parseHBAPCIInfo(output)
+	return pciPath, true
+}
 
-	//vDId := 0
+// 获取vd对应的系统盘符
+func getVdOsPath(pciPath string, virtualDriveId int) string {
+	osPath := "Unknown"
 	if pciPath != "" {
 		diskPrefix := "/dev/disk/by-path/pci-" + pciPath + "-scsi-0:"
 
@@ -241,6 +260,28 @@ func getMegaRaidAdapterInfo(command string, virtualDriveId int, adapterId string
 				if realpath, err := filepath.EvalSymlinks(diskPath); err == nil {
 					osPath = realpath
 					//fmt.Println("Found DISK match: " + diskpath + " -> " + tempResult)
+					break
+				}
+			}
+		}
+	}
+	//fmt.Println("got real os path: ", osPath)
+	return osPath
+}
+
+// 获取pd对应的系统盘符，只有JBOD会直接映射到系统
+func getPdOsPath(pciPath string, physicalDriveId int) string {
+	osPath := "Unknown"
+	if pciPath != "" {
+		diskPrefix := "/dev/disk/by-path/pci-" + pciPath + "-scsi-0:0:"
+
+		// RAID disks are usually with a channel of '2', JBOD disks with a channel of '0'
+		for j := 1; j < 14; j++ {
+			diskPath := diskPrefix + fmt.Sprintf("%d:0", physicalDriveId)
+			//fmt.Println("Looking for DISKpath : " + diskPath)
+			if _, err := os.Stat(diskPath); err == nil {
+				if realpath, err := filepath.EvalSymlinks(diskPath); err == nil {
+					osPath = realpath
 					break
 				}
 			}

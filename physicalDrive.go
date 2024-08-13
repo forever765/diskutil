@@ -25,6 +25,7 @@ type PhysicalDriveStat struct {
 	Model                  string `json:"model"`
 	SerialNumber           string `json:"serial_number"`
 	DriveTemperature       string `json:"drive_emperature"`
+	OsPath                 string `json:"os_path"`
 }
 
 // String() is used to get the print string.
