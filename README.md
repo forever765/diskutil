@@ -118,7 +118,7 @@ Or you can print the DiskStatus in json format by calling `ToJson()`:
 Full sample code is in /examples. Try it to test this package:
 
 ```
-go build -v examples/printDiskStat.go
+go build -v example/printDiskStat.go
 sudo ./printDiskStat
 ```
 ![example-image-1](https://github.com/forever765/diskutil/blob/master/images/example-1.png)  
