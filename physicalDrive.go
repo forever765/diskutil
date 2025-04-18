@@ -130,9 +130,21 @@ func (p *PhysicalDriveStat) parseLine(line string) error {
 		} else {
 			// others drivers
 			parts := strings.Fields(inquiryStr)
-			p.SerialNumber = parts[len(parts)-1]
-			p.Model = strings.Join(parts[1:len(parts)-2], " ")
-			p.Brand = parts[0]
+			dataLen := len(parts)
+			if dataLen == 1 {
+				p.Model = parts[0]
+				p.SerialNumber = ""
+				p.Brand = ""
+			} else if dataLen == 2 {
+				p.Model = parts[0]
+				p.SerialNumber = parts[1]
+				p.Brand = ""
+			} else if dataLen >= 3 {
+				p.SerialNumber = parts[len(parts)-1]
+				p.Model = strings.Join(parts[1:len(parts)-2], " ")
+				p.Brand = parts[0]
+			}
+
 		}
 	} else if strings.Contains(line, keyPdDiskGroup) {
 		diskGroupStr, err := parseFiled(line, keyPdDiskGroup, typeString)

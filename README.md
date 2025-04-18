@@ -9,6 +9,7 @@
 3. improve: 禁用MegaCli64的日志输出文件
 4. improve: complete example code
 5. fixed: RawSize获取异常、物理硬盘型号获取失败的bug
+6: improve: 部分物理磁盘序列号获取失败导致程序崩溃，增强健壮性
 
 ---
 
